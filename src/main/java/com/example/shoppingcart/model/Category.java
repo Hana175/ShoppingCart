@@ -1,14 +1,12 @@
 package com.example.shoppingcart.model;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
 @Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -20,4 +18,9 @@ public class Category {
 
     @OneToMany(mappedBy = "category")
     private List<Product> products;
+
+    public Category(String name) {
+        this.name = name;
+    }
+
 }
