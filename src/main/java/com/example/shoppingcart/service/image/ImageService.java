@@ -36,9 +36,9 @@ public class ImageService implements iImageService{
     }
 
     @Override
-    public Image saveImages(List<MultipartFile> files, Long productId) {
+    public List<ImageDto> saveImages(List<MultipartFile> files, Long productId) {
         Product product = productService.getProductById(productId);
-        List<ImageDto> imageDtos = new ArrayList<>();
+        List<ImageDto> savedImageDto = new ArrayList<>();
         for(MultipartFile file: files){
             try{
                 Image image = new Image();
@@ -47,17 +47,24 @@ public class ImageService implements iImageService{
                 image.setImage(new SerialBlob(file.getBytes()));
                 image.setProduct(product);
 
-                String downloadUrl = "/api/v1/image/download/" +image.getId();
+                String buildDownloadUrl = "/api/v1/image/download/";
+                String downloadUrl = buildDownloadUrl +image.getId();
                 image.setDownloadUrl(downloadUrl);
                 Image savedImage = imageRepository.save(image);
-                savedImage.setDownloadUrl("/api/v1/image/download/" + savedImage.getId());
-
+                savedImage.setDownloadUrl(buildDownloadUrl + savedImage.getId());
+                imageRepository.save(savedImage);
+                ImageDto imageDto = new ImageDto();
+                imageDto.setImageId(savedImage.getId());
+                imageDto.setImageName(savedImage.getFileName());
+                imageDto.setDownloadUrl(savedImage.getDownloadUrl());
+                savedImageDto.add(imageDto);
             }
-            catch(){
+            catch(IOException | SQLException e){
+                throw new RuntimeException(e.getMessage());
 
             }
         }
-        return null;
+        return savedImageDto;
     }
 
     @Override
